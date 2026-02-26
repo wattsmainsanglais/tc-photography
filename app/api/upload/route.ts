@@ -24,8 +24,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 });
   }
 
-  if (!file.type.startsWith('image/')) {
-    return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return NextResponse.json({ error: 'Only JPEG, PNG, WebP and GIF files are allowed' }, { status: 400 });
+  }
+
+  const MAX_SIZE = 15 * 1024 * 1024; // 15MB
+  if (file.size > MAX_SIZE) {
+    return NextResponse.json({ error: 'File must be under 15MB' }, { status: 413 });
   }
 
   // Convert file to buffer for Cloudinary upload
